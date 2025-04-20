@@ -1,0 +1,117 @@
+Project: Automated HR Onboarding System
+Project Overview:
+
+The Automated HR Onboarding System is designed to streamline the process of onboarding new employees by automatically generating offer letters, updating an HR system, and sending welcome emails. The project is built using UiPath, and it leverages multiple workflows (divided into Flowcharts and Sequences) to handle various tasks such as data extraction, PDF generation, system updates, and email automation.
+Workflow Breakdown:
+
+The project consists of multiple XAML files, each handling a specific part of the onboarding process. These workflows will be invoked within the Main.xaml using the Invoke Workflow activity.
+
+    Read Data Workflow:
+        Reads candidate details from an Excel or CSV file and stores them in a DataTable.
+        Input: File path (configurable in a JSON or Excel config file).
+        Output: DataTable containing all candidate data.
+
+    Generate Offer Letter Workflow:
+        Generates a personalized PDF offer letter for each candidate using the candidate’s name, job role, and other details.
+        Uses dynamic selectors to extract data from the DataTable and insert it into a PDF template.
+        Dynamic PDF naming using the candidate’s name.
+        Input: DataRow of candidate details.
+        Output: Generated offer letter saved to a specified folder.
+
+    Update HR System Workflow:
+        Logs into the HR system using credentials stored in UiPath Orchestrator Assets.
+        Dynamically inputs the candidate’s data (Name, Job Role) into the HR system using dynamic selectors.
+        Validates whether the fields are successfully filled using the Element Exists activity.
+        Input: DataRow of candidate details.
+        Output: HR system updated with the candidate’s information.
+
+    Send Email Workflow:
+        Sends an email with the generated offer letter attached to the candidate’s email.
+        The email server settings (SMTP, etc.) are configured via a config file (JSON/Excel).
+        If the email fails to send, it retries three times using the Retry Scope activity.
+        Input: String email address and the path to the generated offer letter PDF.
+        Output: Confirmation that the email was sent.
+
+    Exception Handling Workflow:
+        Handles various exceptions that may arise during the process:
+            Data Not Found Exception: If any required candidate data (like email or name) is missing.
+            PDF Generation Exception: If there’s an issue with generating the offer letter PDF.
+            HR System Exception: If the web elements in the HR system are not found, causing the update to fail.
+            Email Send Exception: If the email fails due to server issues.
+        Input: Exception details.
+        Output: Log of the exception and optionally retrying the failed process.
+
+Project Structure:
+
+    Main.xaml: Orchestrates the process by invoking each workflow in sequence.
+    ReadData.xaml: Reads and parses candidate data from the Excel/CSV.
+    GenerateOfferLetter.xaml: Generates the personalized offer letters.
+    UpdateHRSystem.xaml: Updates the candidate details in the HR system.
+    SendEmail.xaml: Sends the offer letter via email.
+    ExceptionHandling.xaml: Contains exception handling logic using Try Catch, Throw, and Rethrow activities.
+
+Variables:
+
+    String:
+        CandidateName: Stores the candidate’s name.
+        Email: Stores the candidate’s email.
+        JobRole: Stores the job role of the candidate.
+        OfferLetterPath: Stores the dynamically generated file path for the offer letter PDF.
+
+    DataTable:
+        CandidateDataTable: Stores all the candidate details read from the Excel or CSV file.
+
+    List<String>:
+        ListOfJobRoles: Contains all the possible job roles for validation purposes.
+
+    DataRow:
+        Used in each loop iteration to process an individual candidate's data from CandidateDataTable.
+
+Dynamic Selectors:
+
+    HR System Input Fields:
+        The input fields (like Name, Job Role) in the HR system will use dynamic selectors to insert each candidate’s details. For 
+PDF File Naming:
+
+    The offer letter PDF name is dynamically generated using the candidate’s name, ensuring unique filenames. 
+
+  
+Exception Handling:
+
+    Data Not Found Exception:
+        If any required field (like email or job role) is missing, the workflow throws a custom exception.
+    PDF Generation Exception:
+        If an error occurs during PDF generation (e.g., missing data in the template), a PDF Generation Exception is thrown.
+    HR System Exception:
+        If updating the HR system fails due to missing web elements, the workflow will catch the Element Not Found Exception and retry the operation.
+    Email Send Exception:
+        If the email fails to send, the Retry Scope is used to retry the operation up to three times. If all retries fail, the error is logged and a SendEmailException is thrown.
+
+Test Data:
+
+The project will be tested with five different candidate entries, each having variations in their details such as names, job roles, and email addresses. This ensures the robustness of the solution across multiple scenarios.
+Config File:
+
+A JSON or Excel config file will be used to store important settings such as:
+
+    HR system URL.
+    Email server settings (SMTP server, port, credentials).
+    File paths for offer letter templates and generated PDFs.
+
+Additional Features:
+
+    UiPath Orchestrator Integration:
+        The project can be scheduled via UiPath Orchestrator to run at specific intervals (e.g., nightly onboarding).
+        Assets will be used in Orchestrator to store the login credentials for the HR system, ensuring sensitive information is not hardcoded.
+
+PDF Automation:
+
+    Native PDF Generation: The offer letters will be dynamically generated based on a template, with placeholders replaced by the candidate's actual data (Name, Job Role, etc.).
+
+Email Automation:
+
+    The SendEmail.xaml workflow will handle sending the offer letter to each candidate, ensuring the subject, body, and attachment are customized based on the candidate’s data.
+
+Conclusion:
+
+This project utilizes UiPath ReFramework to automate the HR onboarding process, including data handling, PDF generation, system updates, and email communication. The robust exception handling, dynamic selectors, and usage of a configuration file ensure flexibility and scalability, while integration with UiPath Orchestrator enables automation scheduling and centralized asset management.
